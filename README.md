@@ -6,3 +6,6 @@ This project is a homework assignment to teach how to get Pycharm setup with Doc
 
 # Postman Screenshot
 ![postman_request_output](screenshots/PostmanRequest.png)
+
+# Browser Output Screenshot
+![browserop_output](screenshots/browserop.png)
