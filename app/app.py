@@ -94,28 +94,50 @@ def api_browse() -> str:
 @app.route('/api/v1/players/<string:name>', methods=['GET'])
 def api_retrieve(name) -> str:
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM mlbPlayers WHERE name=%s', name)
+    cursor.execute('SELECT * FROM basePlayers WHERE name=%s', name)
     result = cursor.fetchall()
     json_result = json.dumps(result)
     resp = Response(json_result, status=200, mimetype='application/json')
     return resp
 
 
-@app.route('/api/v1/players/<string:name>', methods=['POST'])
-def api_add(name) -> str:
-    resp = Response(status=201, mimetype='application/json')
-    return resp
-
-
 @app.route('/api/v1/players/<string:name>', methods=['PUT'])
 def api_edit(name) -> str:
+    cursor = mysql.get_db().cursor()
+    content = request.json
+    inputData = (content['name'], content['team'], content['position'],
+                 content['height'], content['weight'],
+                 content['age'], name)
+    sql_update_query = """UPDATE basePlayers t SET t.name = %s, t.team = %s, t.position = %s, t.height = 
+    %s, t.weight = %s, t.age = %s WHERE t.name = %s """
+    cursor.execute(sql_update_query, inputData)
+    mysql.get_db().commit()
+    resp = Response(status=200, mimetype='application/json')
+    return resp
+
+
+@app.route('/api/v1/players', methods=['POST'])
+def api_add() -> str:
+    content = request.json
+    cursor = mysql.get_db().cursor()
+    inputData = (content['name'], content['team'], content['position'],
+                 content['height'], content['weight'],
+                 content['age'])
+    sql_insert_query = """INSERT INTO basePlayers (name,team,position,height,weight,
+    age) VALUES (%s, %s,%s, %s,%s, %s)"""
+    cursor.execute(sql_insert_query, inputData)
+    mysql.get_db().commit()
     resp = Response(status=201, mimetype='application/json')
     return resp
 
 
-@app.route('/api/players/<string:name>', methods=['DELETE'])
+@app.route('/api/v1/players/<string:name>', methods=['DELETE'])
 def api_delete(name) -> str:
-    resp = Response(status=210, mimetype='application/json')
+    cursor = mysql.get_db().cursor()
+    sql_delete_query = """DELETE FROM basePlayers WHERE name = %s """
+    cursor.execute(sql_delete_query, name)
+    mysql.get_db().commit()
+    resp = Response(status=200, mimetype='application/json')
     return resp
 
 
